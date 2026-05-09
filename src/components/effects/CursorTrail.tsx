@@ -1,15 +1,27 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useCursor } from './CursorContext';
 
 export default function CursorTrail() {
   const { mousePosition, cursorType } = useCursor();
+  const [isMobile, setIsMobile] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const points = useRef<{ x: number; y: number; age: number; color: string }[]>([]);
-  const requestRef = useRef<number>(null);
+  const requestRef = useRef<number | null>(null);
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.matchMedia('(max-width: 768px)').matches || 'ontouchstart' in window);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
+    
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -73,7 +85,9 @@ export default function CursorTrail() {
       window.removeEventListener('resize', resize);
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
     };
-  }, [mousePosition, cursorType]);
+  }, [mousePosition, cursorType, isMobile]);
+
+  if (isMobile) return null;
 
   return (
     <canvas

@@ -26,6 +26,7 @@ export default function Navbar() {
 
   const navLinks = [
     { href: '/', label: 'Dashboard' },
+    { href: '/playground', label: 'Playground' },
     { href: '/progress', label: 'Progress' },
     { href: '/account', label: 'Account' },
   ];

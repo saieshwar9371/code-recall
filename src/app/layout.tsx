@@ -22,7 +22,7 @@ import { CursorProvider } from "@/components/effects/CursorContext";
 import CustomCursor from "@/components/effects/CustomCursor";
 import CursorTrail from "@/components/effects/CursorTrail";
 import BackgroundGlow from "@/components/effects/BackgroundGlow";
-import ScrollProgress from "@/components/effects/ScrollProgress";
+
 
 export default function RootLayout({
   children,
@@ -38,7 +38,7 @@ export default function RootLayout({
           <BackgroundGlow />
           <CursorTrail />
           <CustomCursor />
-          <ScrollProgress />
+
           <Navbar />
           <main className="pt-24 min-h-screen relative z-10">
             {children}
