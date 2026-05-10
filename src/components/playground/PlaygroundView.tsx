@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Play, 
   Terminal, 
@@ -10,7 +11,12 @@ import {
   Code2, 
   Download, 
   Trash2, 
-  Maximize2
+  ChevronRight,
+  Info,
+  Maximize2,
+  ChevronDown,
+  ChevronUp,
+  Settings2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';

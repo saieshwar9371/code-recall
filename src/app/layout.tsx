@@ -22,6 +22,7 @@ import { CursorProvider } from "@/components/effects/CursorContext";
 import CustomCursor from "@/components/effects/CustomCursor";
 import CursorTrail from "@/components/effects/CursorTrail";
 import BackgroundGlow from "@/components/effects/BackgroundGlow";
+import LoginHint from "@/components/effects/LoginHint";
 
 
 export default function RootLayout({
@@ -40,6 +41,7 @@ export default function RootLayout({
           <CustomCursor />
 
           <Navbar />
+          <LoginHint />
           <main className="pt-24 min-h-screen relative z-10">
             {children}
           </main>

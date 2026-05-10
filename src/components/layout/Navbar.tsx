@@ -66,6 +66,35 @@ export default function Navbar() {
         <div className="hidden sm:flex items-center gap-4 md:gap-8">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
+            const requiresAuth = link.href === '/account';
+            const handleClick = requiresAuth && !user
+              ? () => setIsAuthModalOpen(true)
+              : undefined;
+
+            const content = (
+              <>
+                {link.label}
+                {isActive && (
+                  <motion.div 
+                    layoutId="activeNav"
+                    className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full shadow-[0_0_10px_rgba(99,102,241,0.8)]"
+                  />
+                )}
+              </>
+            );
+
+            if (requiresAuth && !user) {
+              return (
+                <button
+                  key={link.href}
+                  onClick={handleClick}
+                  className={`text-sm font-medium transition-all relative py-1 px-2 text-muted-foreground hover:text-white`}
+                >
+                  {content}
+                </button>
+              );
+            }
+
             return (
               <Link 
                 key={link.href}
@@ -74,13 +103,7 @@ export default function Navbar() {
                   isActive ? 'text-white' : 'text-muted-foreground hover:text-white'
                 }`}
               >
-                {link.label}
-                {isActive && (
-                  <motion.div 
-                    layoutId="activeNav"
-                    className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full shadow-[0_0_10px_rgba(99,102,241,0.8)]"
-                  />
-                )}
+                {content}
               </Link>
             );
           })}
@@ -110,7 +133,7 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border-0 bg-transparent p-0 outline-none ring-offset-background transition-colors hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 <Avatar className="h-10 w-10 border border-white/10">
-                  <AvatarImage src={user.user_metadata.avatar_url || undefined} />
+                  <AvatarImage src={user.user_metadata.avatar_url || null} />
                   <AvatarFallback className="bg-primary/20 text-primary">
                     {user.email?.charAt(0).toUpperCase()}
                   </AvatarFallback>

@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Terminal, Loader2, Eye, EyeOff, RefreshCw } from 'lucide-react';
+import { Terminal, Loader2, Eye, EyeOff, User, ShieldCheck, RefreshCw } from 'lucide-react';
 
 const GoogleIcon = () => (
   <svg 
@@ -237,7 +237,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <TabsContent value="signup" className="space-y-4 min-h-[320px] flex flex-col justify-between pb-2">
                 <Input 
                   type="text" 
-                  placeholder="Full Name" 
+                  placeholder="Full Name — e.g. Eswar" 
                   className="h-12 glass border-white/10 focus:border-primary/50"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
