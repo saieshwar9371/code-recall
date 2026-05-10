@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Terminal, Loader2 } from 'lucide-react';
+import { Terminal, Loader2, Eye, EyeOff, User, ShieldCheck, RefreshCw } from 'lucide-react';
 
 const GoogleIcon = () => (
   <svg 
@@ -38,9 +38,25 @@ const validatePassword = (password: string) => {
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [activeTab, setActiveTab] = useState('login');
+  const [captcha, setCaptcha] = useState({ q: '', a: 0 });
+  const [captchaInput, setCaptchaInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const generateCaptcha = () => {
+    const n1 = Math.floor(Math.random() * 10) + 1;
+    const n2 = Math.floor(Math.random() * 10) + 1;
+    setCaptcha({ q: `${n1} + ${n2}`, a: n1 + n2 });
+    setCaptchaInput('');
+  };
+
+  useState(() => {
+    generateCaptcha();
+  });
 
   const handleEmailAuth = async (type: 'login' | 'signup') => {
     setIsLoading(true);
@@ -58,14 +74,34 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
     try {
       if (type === 'login') {
+        if (parseInt(captchaInput) !== captcha.a) {
+          setError('Invalid CAPTCHA answer. Please try again.');
+          generateCaptcha();
+          setIsLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        if (error) {
+          generateCaptcha();
+          throw error;
+        }
         onClose();
       } else {
-        const { error } = await supabase.auth.signUp({ email, password });
+        if (!fullName) throw new Error('Please enter your full name');
+        
+        const { error } = await supabase.auth.signUp({ 
+          email, 
+          password,
+          options: {
+            data: {
+              full_name: fullName
+            }
+          }
+        });
         if (error) throw error;
         setSuccess('Successfully signed up! Please check your email to confirm your account before logging in.');
         setPassword('');
+        setFullName('');
       }
     } catch (err: unknown) {
       const error = err as Error;
@@ -92,7 +128,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[400px] glass-darker border-white/10 p-0 overflow-hidden text-white">
+      <DialogContent className="sm:max-w-[520px] glass-darker border-white/10 p-0 overflow-hidden text-white">
         <div className="p-8">
           <DialogHeader className="mb-8">
             <div className="flex justify-center mb-4">
@@ -100,13 +136,23 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 <Terminal className="w-8 h-8 text-primary" />
               </div>
             </div>
-            <DialogTitle className="text-2xl font-bold text-center text-white">Welcome Back</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-center text-white">
+              {activeTab === 'login' ? 'Welcome Back' : 'Join Code Recall'}
+            </DialogTitle>
             <DialogDescription className="text-center text-muted-foreground">
               Master Python with the community.
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs defaultValue="login" className="w-full" onValueChange={() => { setError(null); setSuccess(null); }}>
+          <Tabs 
+            defaultValue="login" 
+            className="w-full" 
+            onValueChange={(value) => { 
+              setActiveTab(value);
+              setError(null); 
+              setSuccess(null); 
+            }}
+          >
             <TabsList className="grid w-full grid-cols-2 mb-8 bg-white/5 rounded-xl p-1">
               <TabsTrigger value="login" className="rounded-lg data-[state=active]:bg-primary">Login</TabsTrigger>
               <TabsTrigger value="signup" className="rounded-lg data-[state=active]:bg-primary">Sign Up</TabsTrigger>
@@ -131,7 +177,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 </div>
               </div>
 
-              <TabsContent value="login" className="space-y-4">
+              <TabsContent value="login" className="space-y-4 min-h-[320px] flex flex-col justify-between pb-2">
                 <Input 
                   type="email" 
                   placeholder="Email address" 
@@ -139,15 +185,48 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
-                <Input 
-                  type="password" 
-                  placeholder="Password" 
-                  className="h-12 glass border-white/10 focus:border-primary/50"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="relative">
+                  <Input 
+                    type={showPassword ? "text" : "password"} 
+                    placeholder="Password" 
+                    className="h-12 glass border-white/10 focus:border-primary/50 pr-12"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
+                  <div className="flex-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Security Check</p>
+                    <p className="text-sm font-medium text-white flex items-center gap-2">
+                      What is <span className="text-primary font-bold">{captcha.q}</span>?
+                    </p>
+                  </div>
+                  <div className="relative w-24">
+                    <Input 
+                      value={captchaInput}
+                      onChange={(e) => setCaptchaInput(e.target.value)}
+                      placeholder="?"
+                      className="h-10 text-center glass border-white/10 focus:border-primary/50"
+                    />
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={generateCaptcha}
+                    className="p-2 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-white transition-colors"
+                    title="Refresh CAPTCHA"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </button>
+                </div>
                 <Button 
-                  className="w-full h-12 bg-primary hover:bg-primary/80 text-white font-semibold rounded-xl"
+                  className="w-full h-12 bg-primary hover:bg-primary/80 text-white font-semibold rounded-xl mt-auto"
                   onClick={() => handleEmailAuth('login')}
                   disabled={isLoading}
                 >
@@ -155,7 +234,14 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 </Button>
               </TabsContent>
 
-              <TabsContent value="signup" className="space-y-4">
+              <TabsContent value="signup" className="space-y-4 min-h-[320px] flex flex-col justify-between pb-2">
+                <Input 
+                  type="text" 
+                  placeholder="Full Name" 
+                  className="h-12 glass border-white/10 focus:border-primary/50"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
                 <Input 
                   type="email" 
                   placeholder="Email address" 
@@ -163,15 +249,24 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
-                <Input 
-                  type="password" 
-                  placeholder="Create Password" 
-                  className="h-12 glass border-white/10 focus:border-primary/50"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="relative">
+                  <Input 
+                    type={showPassword ? "text" : "password"} 
+                    placeholder="Create Password" 
+                    className="h-12 glass border-white/10 focus:border-primary/50 pr-12"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
                 <Button 
-                  className="w-full h-12 bg-primary hover:bg-primary/80 text-white font-semibold rounded-xl"
+                  className="w-full h-12 bg-primary hover:bg-primary/80 text-white font-semibold rounded-xl mt-auto"
                   onClick={() => handleEmailAuth('signup')}
                   disabled={isLoading}
                 >

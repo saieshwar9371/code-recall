@@ -110,7 +110,7 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border-0 bg-transparent p-0 outline-none ring-offset-background transition-colors hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 <Avatar className="h-10 w-10 border border-white/10">
-                  <AvatarImage src={user.user_metadata.avatar_url} />
+                  <AvatarImage src={user.user_metadata.avatar_url || null} />
                   <AvatarFallback className="bg-primary/20 text-primary">
                     {user.email?.charAt(0).toUpperCase()}
                   </AvatarFallback>
@@ -118,17 +118,17 @@ export default function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56 glass-darker border-white/10 text-white" align="end">
                 <DropdownMenuItem
-                  className="cursor-pointer text-white focus:bg-white/10 focus:text-white hover:bg-white/10 hover:text-white"
+                  className="cursor-pointer group text-white focus:bg-white/10 focus:text-white hover:bg-white/10 hover:text-white"
                   onClick={() => router.push('/account')}
                 >
-                  <User className="mr-2 h-4 w-4" />
+                  <User className="mr-2 h-4 w-4 opacity-100 transition-colors" stroke="white" style={{ color: 'white' }} strokeWidth={2.5} />
                   Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="cursor-pointer text-red-400 focus:bg-white/10 focus:text-red-400 hover:bg-white/10 hover:text-red-400" 
+                  className="cursor-pointer group text-red-400 focus:bg-white/10 focus:text-red-400 hover:bg-white/10 hover:text-red-400" 
                   onClick={handleLogout}
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
+                  <LogOut className="mr-2 h-4 w-4 opacity-100 transition-colors" stroke="#f87171" style={{ color: '#f87171' }} strokeWidth={2.5} />
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
