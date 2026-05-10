@@ -110,7 +110,7 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border-0 bg-transparent p-0 outline-none ring-offset-background transition-colors hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 <Avatar className="h-10 w-10 border border-white/10">
-                  <AvatarImage src={user.user_metadata.avatar_url || null} />
+                  <AvatarImage src={user.user_metadata.avatar_url || undefined} />
                   <AvatarFallback className="bg-primary/20 text-primary">
                     {user.email?.charAt(0).toUpperCase()}
                   </AvatarFallback>

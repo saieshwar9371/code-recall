@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Terminal, Loader2, Eye, EyeOff, User, ShieldCheck, RefreshCw } from 'lucide-react';
+import { Terminal, Loader2, Eye, EyeOff, RefreshCw } from 'lucide-react';
 
 const GoogleIcon = () => (
   <svg 

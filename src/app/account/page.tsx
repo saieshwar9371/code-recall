@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, LogOut, Camera, Mail, Loader2, Save, Trash2, AlertTriangle } from 'lucide-react';
+import { LogOut, Camera, Mail, Loader2, Save, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -18,33 +18,31 @@ export default function AccountPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
-  const [user, setUser] = useState<any>(null);
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
-    getProfile();
-  }, []);
+    async function getProfile() {
+      try {
+        setLoading(true);
+        const { data: { user } } = await supabase.auth.getUser();
 
-  async function getProfile() {
-    try {
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (user) {
-        setUser(user);
-        setEmail(user.email || '');
-        setFullName(user.user_metadata?.full_name || '');
-        setAvatarUrl(user.user_metadata?.avatar_url || '');
-      } else {
-        router.push('/');
+        if (user) {
+          setEmail(user.email || '');
+          setFullName(user.user_metadata?.full_name || '');
+          setAvatarUrl(user.user_metadata?.avatar_url || '');
+        } else {
+          router.push('/');
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error loading user data:', error);
-    } finally {
-      setLoading(false);
     }
-  }
+
+    getProfile();
+  }, [router]);
 
   async function updateProfile() {
     try {
@@ -58,7 +56,8 @@ export default function AccountPage() {
 
       if (error) throw error;
       alert('Profile updated successfully!');
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       alert(error.message);
     } finally {
       setSaving(false);
@@ -77,7 +76,7 @@ export default function AccountPage() {
       };
       reader.readAsDataURL(file);
       await new Promise(resolve => setTimeout(resolve, 1000));
-    } catch (error: any) {
+    } catch {
       alert('Error uploading image');
     } finally {
       setSaving(false);
@@ -99,7 +98,8 @@ export default function AccountPage() {
       // In a real app: await supabase.rpc('delete_user_account') or similar
       alert('Account deletion requested. In a production environment, this would permanently remove your data.');
       await handleLogout();
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       alert(error.message);
     } finally {
       setSaving(false);
@@ -142,7 +142,7 @@ export default function AccountPage() {
             {/* Avatar Section */}
             <div className="relative group">
               <Avatar className="w-40 h-40 border-4 border-white/10 relative">
-                <AvatarImage src={avatarUrl || null} className="object-cover" />
+                <AvatarImage src={avatarUrl || undefined} className="object-cover" />
                 <AvatarFallback className="text-4xl bg-primary/20 text-primary font-bold">
                   {fullName ? fullName.split(' ').map(n => n[0]).join('').toUpperCase() : email[0]?.toUpperCase()}
                 </AvatarFallback>
