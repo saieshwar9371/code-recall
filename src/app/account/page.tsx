@@ -18,7 +18,6 @@ export default function AccountPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
-  const [user, setUser] = useState<any>(null);
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -29,7 +28,6 @@ export default function AccountPage() {
         const { data: { user } } = await supabase.auth.getUser();
 
         if (user) {
-          setUser(user);
           setEmail(user.email || '');
           setFullName(user.user_metadata?.full_name || '');
           setAvatarUrl(user.user_metadata?.avatar_url || '');

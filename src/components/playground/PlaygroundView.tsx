@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { 
   Play, 
   Terminal, 
@@ -11,8 +11,7 @@ import {
   Code2, 
   Download, 
   Trash2, 
-  ChevronRight,
-  Info,
+
   Maximize2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
